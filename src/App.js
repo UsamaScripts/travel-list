@@ -10,19 +10,31 @@ function App() {
 
   function handleAddItems(item) {
     setItems((items) => [...items, item]);
-    console.log(items);
+    // console.log(items);
   }
 
   function handleDelete(id) {
     setItems((items) => items.filter((item) => item.id !== id));
-    console.log("function invoked");
+    // console.log("function invoked");
+  }
+
+  function handleUpdateToggle(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
   }
   return (
     <div className="app">
       <Logo />
       <Form addItem={handleAddItems} />
-      <PackingList items={items} handleDelete={handleDelete} />
-      <Stats />
+      <PackingList
+        items={items}
+        handleDelete={handleDelete}
+        handleUpdateToggle={handleUpdateToggle}
+      />
+      <Stats items={items} />
     </div>
   );
 }
@@ -65,28 +77,54 @@ function Form({ addItem }) {
 function Logo() {
   return <h1>Far Away</h1>;
 }
-function PackingList({ items, handleDelete }) {
+function PackingList({ items, handleDelete, handleUpdateToggle }) {
   console.log(items);
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item item={item} key={item.id} handleDelete={handleDelete} />
+          <Item
+            item={item}
+            key={item.id}
+            handleDelete={handleDelete}
+            handleUpdateToggle={handleUpdateToggle}
+          />
         ))}
       </ul>
     </div>
   );
 }
-function Stats() {
+function Stats({ items }) {
+  if (!items.length)
+    return (
+      <p className="stats">
+        <em>Please add item to list</em>
+      </p>
+    );
+
+  const itemNum = items.length;
+  const packedItem = items.filter((item) => item.packed === true);
+  const packedItemNumber = packedItem.length;
+  const percetage = Math.floor((packedItemNumber / itemNum) * 100);
   return (
     <footer className="stats">
-      <em>You have X item on your list and you have packed X </em>
+      <em>
+        {percetage === 100
+          ? "You have packed all the things you are ready to go"
+          : `You have ${itemNum} item on your list and you have packed ${percetage}% of
+        your Item`}
+      </em>
     </footer>
   );
 }
-function Item({ item, handleDelete }) {
+function Item({ item, handleDelete, handleUpdateToggle }) {
   return (
     <li>
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => handleUpdateToggle(item.id)}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
