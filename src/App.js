@@ -4,6 +4,7 @@ const initialItems = [
   { id: 1, description: "Passports", quantity: 2, packed: false },
   { id: 2, description: "Socks", quantity: 12, packed: true },
 ];
+
 // console.log(initialItems);
 function App() {
   const [items, setItems] = useState(initialItems);
@@ -33,6 +34,7 @@ function App() {
         items={items}
         handleDelete={handleDelete}
         handleUpdateToggle={handleUpdateToggle}
+        setItems={setItems}
       />
       <Stats items={items} />
     </div>
@@ -77,12 +79,30 @@ function Form({ addItem }) {
 function Logo() {
   return <h1>Far Away</h1>;
 }
-function PackingList({ items, handleDelete, handleUpdateToggle }) {
-  console.log(items);
+function PackingList({ items, setItems, handleDelete, handleUpdateToggle }) {
+  const [sortBy, setSortBy] = useState("input");
+
+  let sortedItem;
+  if (sortBy === "input") sortedItem = items;
+  if (sortBy === "description")
+    sortedItem = items
+      .slice()
+      .sort((a, b) => a.description.localeCompare(b.description));
+  if (sortBy === "packed")
+    sortedItem = items
+      .slice()
+      .sort((a, b) => Number(b.packed) - Number(a.packed));
+
+  function handleClearList() {
+    if (items.length === 0) return window.alert("List Is Already Clear");
+
+    const confrimed = window.confirm("Are you sure to clear the list");
+    if (confrimed && items.length > 0) setItems((items = []));
+  }
   return (
     <div className="list">
       <ul>
-        {items.map((item) => (
+        {sortedItem.map((item) => (
           <Item
             item={item}
             key={item.id}
@@ -91,6 +111,15 @@ function PackingList({ items, handleDelete, handleUpdateToggle }) {
           />
         ))}
       </ul>
+      <div className="actions">
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="input">Sort by input Order</option>
+          <option value="description">Sort by description</option>
+          <option value="packed">Sort by Packed Status</option>
+        </select>
+
+        <button onClick={handleClearList}>Clear List</button>
+      </div>
     </div>
   );
 }
