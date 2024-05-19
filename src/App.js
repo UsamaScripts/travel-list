@@ -1,23 +1,27 @@
 import { useState } from "react";
 
-// const initialItems = [
-//   { id: 1, description: "Passports", quantity: 2, packed: false },
-//   { id: 2, description: "Socks", quantity: 12, packed: true },
-// ];
+const initialItems = [
+  { id: 1, description: "Passports", quantity: 2, packed: false },
+  { id: 2, description: "Socks", quantity: 12, packed: true },
+];
 // console.log(initialItems);
 function App() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(initialItems);
 
   function handleAddItems(item) {
     setItems((items) => [...items, item]);
     console.log(items);
   }
 
+  function handleDelete(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+    console.log("function invoked");
+  }
   return (
     <div className="app">
       <Logo />
       <Form addItem={handleAddItems} />
-      <PackingList items={items} />
+      <PackingList items={items} handleDelete={handleDelete} />
       <Stats />
     </div>
   );
@@ -61,13 +65,13 @@ function Form({ addItem }) {
 function Logo() {
   return <h1>Far Away</h1>;
 }
-function PackingList({ items }) {
+function PackingList({ items, handleDelete }) {
   console.log(items);
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item item={item} key={item.id} />
+          <Item item={item} key={item.id} handleDelete={handleDelete} />
         ))}
       </ul>
     </div>
@@ -80,13 +84,13 @@ function Stats() {
     </footer>
   );
 }
-function Item({ item }) {
+function Item({ item, handleDelete }) {
   return (
     <li>
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => handleDelete(item.id)}>❌</button>
     </li>
   );
 }
